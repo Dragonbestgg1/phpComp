@@ -14,6 +14,16 @@
   padding-top: 10px;
   gap: 64px;
   font-family: var(--font-geist-sans);
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -198,6 +208,9 @@ a.secondary {
   height: 100%;
   align-items: center;
 }
+
+/* #region button */
+
 .button {
   background: rgb(0, 212, 255);
   border: none;
@@ -232,38 +245,32 @@ a.secondary {
   left: 0;
   width: 0;
   height: 150%;
-  background: rgba(255, 255, 255, 1);
+  background: rgba(9, 9, 121, 1);
   transform: skewX(45deg);
   transition: width 0.4s ease, transform 0.4s ease;
   z-index: 0;
+  border-color: rgba(9, 9, 121, 1);
 }
 
 .button:hover::before {
   width: 50%;
 }
 
-.button:hover {
-  color: #000000;
-}
-
 .button:active::before {
   width: 100%;
   transform: none;
+  border-color: rgba(9, 9, 121, 1);
 }
 
-.button:active {
-  color: #000000;
-}
 .button.active::before {
   width: 100%;
   transform: none;
-}
-
-.button.active {
-  color: #000000;
 }
 
 .button span {
   position: relative;
   z-index: 1;
 }
+
+/* #endregion */
+
