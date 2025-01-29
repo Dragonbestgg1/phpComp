@@ -1,7 +1,7 @@
 // src/components/land.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import styles from "../app/page.module.css";
 
 export default function Land() {
