@@ -342,10 +342,14 @@ a.secondary {
 }
 
 .saveItem {
-  display: block;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
   font-size: x-large;
   border-bottom: 3px solid rgba(255, 255, 255, 0);
   width: 100%;
+  gap: 10px;
   transition: border-bottom 0.5s ease;
 }
 
@@ -367,6 +371,10 @@ a.secondary {
 }
 
 .codeBaseHeader{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
   position: absolute;
   background-color: #1e1e1e;
   width: 75vw;
@@ -377,9 +385,15 @@ a.secondary {
   padding-bottom: 5px;
   border-top-left-radius: 15px;
   border-top-right-radius: 15px;
+  gap: 10px;
 }
 
 .runButton{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   top: 0;
   right: 0;
   background-color: white;
@@ -400,6 +414,35 @@ a.secondary {
 .runButton:active{
   opacity: 0.1;
 }
+
+.saveButton{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  top: 0;
+  right: 0;
+  background-color: lime;
+  border-color: lime;
+  font-weight: bolder;
+  color: black;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-left: 10px;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.saveButton:hover{
+  opacity: 0.7;
+}
+.saveButton:active{
+  opacity: 0.1;
+}
+
 
 .codeBaseContainer {
   background-color: #1e1e1e;
@@ -429,6 +472,39 @@ a.secondary {
   width: 95vw;
   overflow: scroll;
   border-radius: 5px;
+  cursor: default;
+}
+
+.editInput{
+  width: 10vw;
+  height: 2vh;
+  padding: 15px;
+  padding-left: 35px;
+  background: none;
+  border: none;
+  font-size: x-large;
+  font-weight: bolder;
+}
+
+.editButton{
+  margin-left: 10px;
+  cursor: pointer;
+  font-weight: bolder;
+  color: lime;
+  font-size: 14px;
+  padding: 5px 10px;
+  background: none;
+  border: none;
+}
+
+.editIcon{
+  color: white;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.terminal{
+  cursor: text;
 }
 
 /* #endregion */

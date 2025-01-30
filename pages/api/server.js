@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.post("/api/run", (req, res) => {
-  const { email, code, key } = req.body; // Include key
+  const { code } = req.body; // No need to handle email or key
   const tempFilePath = path.join(__dirname, "temp.php");
 
   fs.writeFile(tempFilePath, code, (err) => {
@@ -40,42 +40,7 @@ app.post("/api/run", (req, res) => {
         return res.status(500).json({ error: output });
       }
 
-      // Save the last run code to the user's JSON file
-      const jsonFilePath = path.join(__dirname, "json", `${email}.json`);
-
-      fs.readFile(jsonFilePath, "utf8", (readErr, data) => {
-        if (readErr && readErr.code !== "ENOENT") {
-          console.error(readErr);
-          return res
-            .status(500)
-            .json({ error: "Failed to read user JSON file." });
-        }
-
-        let userData = data ? JSON.parse(data) : {};
-        const newEntry = {
-          title: "php code",
-          code: code,
-        };
-
-        // Use the provided key or find the next available key
-        const entryKey = key || String(Object.keys(userData).length + 1);
-        userData[entryKey] = newEntry;
-
-        fs.writeFile(
-          jsonFilePath,
-          JSON.stringify(userData, null, 2),
-          (writeErr) => {
-            if (writeErr) {
-              console.error(writeErr);
-              return res
-                .status(500)
-                .json({ error: "Failed to write user JSON file." });
-            }
-
-            res.json({ output });
-          }
-        );
-      });
+      res.json({ output });
     });
   });
 });
@@ -115,8 +80,11 @@ app.post("/api/save", (req, res) => {
     }
 
     let userData = data ? JSON.parse(data) : {};
+    const existingProject = userData[key];
+
+    // Only set the title if it isn't already set
     const newEntry = {
-      title: "php code",
+      title: existingProject ? existingProject.title : "php code",
       code: code,
     };
 
@@ -171,6 +139,35 @@ app.post('/api/create', (req, res) => {
   });
 });
 
+// New endpoint to modify the title of a project
+app.post('/api/modify-title', (req, res) => {
+  const { email, key, newTitle } = req.body;
+  const jsonFilePath = path.join(__dirname, 'json', `${email}.json`);
+
+  fs.readFile(jsonFilePath, 'utf8', (readErr, data) => {
+    if (readErr) {
+      console.error(readErr);
+      return res.status(500).json({ error: 'Failed to read user JSON file.' });
+    }
+
+    let userData = data ? JSON.parse(data) : {};
+
+    if (!userData[key]) {
+      return res.status(404).json({ error: 'Project not found.' });
+    }
+
+    userData[key].title = newTitle;
+
+    fs.writeFile(jsonFilePath, JSON.stringify(userData, null, 2), (writeErr) => {
+      if (writeErr) {
+        console.error(writeErr);
+        return res.status(500).json({ error: 'Failed to write user JSON file.' });
+      }
+
+      res.json({ message: 'Title updated successfully!' });
+    });
+  });
+});
 
 app.listen(3001, () => {
   console.log("Server running on http://localhost:3001");

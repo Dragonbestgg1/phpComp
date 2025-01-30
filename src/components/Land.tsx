@@ -5,6 +5,10 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import { FaFolder } from "react-icons/fa6";
 import { RxCornerBottomLeft } from "react-icons/rx";
 import { FiFilePlus } from "react-icons/fi";
+import { TbEdit } from "react-icons/tb";
+import { VscDebugRerun } from "react-icons/vsc";
+import { IoIosSave } from "react-icons/io";
+import { FaCheck } from "react-icons/fa";
 import CodeMirror from '@uiw/react-codemirror';
 import { php } from '@codemirror/lang-php';
 import { dracula } from '@uiw/codemirror-theme-dracula';
@@ -18,13 +22,16 @@ type Project = {
 export default function Land() {
   const { data: session } = useSession();
   const [isActive, setIsActive] = useState(false);
-  const [code, setCode] = useState('<?php\n// Write your PHP code here...\n?>');
+  const [code, setCode] = useState('<?php\n//Your php code goes here...\n\n?>');
   const [output, setOutput] = useState('');
   const [projects, setProjects] = useState<{ [key: number]: Project }>({});
   const [currentKey, setCurrentKey] = useState<number | null>(null);
-  const [isNewProject, setIsNewProject] = useState(true); // Initially true
+  const [isNewProject, setIsNewProject] = useState(true);
   const [newKey, setNewKey] = useState<number | null>(null);
+  const [editTitleKey, setEditTitleKey] = useState<number | null>(null); // State for editing title
+  const [newTitle, setNewTitle] = useState(''); // State for new project title  
   let keyCounter = Object.keys(projects).length;
+
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -40,10 +47,9 @@ export default function Land() {
       }
       const data: { [key: number]: Project } = await response.json();
       setProjects(data);
-      keyCounter = Object.keys(data).length; // Set the keyCounter based on fetched projects
-      console.log('Projects fetched:', data);
+      keyCounter = Object.keys(data).length;
     } catch (error) {
-      console.error('Error fetching projects:', error);
+      setOutput(`Error fetching projects: ${error}`);
     }
   };
 
@@ -63,7 +69,7 @@ export default function Land() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ code, email: session?.user?.email, key: currentKey }), // Include key
+        body: JSON.stringify({ code, email: session?.user?.email, key: currentKey }),
       });
       const result = await response.json();
       if (!response.ok) {
@@ -81,37 +87,38 @@ export default function Land() {
 
   const handleProjectClick = (key: number) => {
     setCurrentKey(key);
-    setIsNewProject(false); // Mark as not a new project
-    console.log('Project clicked. isNewProject:', false); // Log the new state after setting
+    setIsNewProject(false);
     setCode(projects[key].code);
+    setNewTitle(projects[key].title); // Set the new title state when a project is clicked
   };
 
   const handleNewProjectClick = () => {
     setIsNewProject(true);
-    console.log('New project clicked. isNewProject:', true);
-    
+
     const keys = Object.keys(projects).map(Number);
     const uniqueKey = keys.length > 0 ? Math.max(...keys) + 1 : 1;
-  
-    setNewKey(uniqueKey); 
+
+    setNewKey(uniqueKey);
     setCurrentKey(uniqueKey);
-    setCode('<?php\n// Write your PHP code here...\n?>'); // Reset CodeMirror to original state
+    setCode('<?php\n//Your php code goes here...\n\n?>');
+    setNewTitle(''); // Reset the new title state
   };
-  
 
   const saveCode = () => {
-    console.log('Save button clicked. isNewProject before saving:', isNewProject);
     if (isNewProject) {
       saveNewProject();
     } else {
       saveExistingProject();
     }
-    console.log('Save button clicked. isNewProject after saving:', isNewProject);
   };
-  
+
   const saveNewProject = async () => {
-    const payload = { code, email: session?.user?.email, key: newKey }; // Construct the payload
-    console.log('Creating new project with payload:', payload); // Log the payload
+    if (newKey === null) {
+      setOutput('Error: No project key available to save.');
+      return;
+    }
+  
+    const payload = { code, email: session?.user?.email, key: newKey };
   
     try {
       const response = await fetch('http://localhost:3001/api/create', {
@@ -134,7 +141,6 @@ export default function Land() {
       if (result.key) {
         setIsNewProject(false);
         setCurrentKey(result.key);
-        console.log('New project saved successfully. isNewProject:', false);
         setNewKey(null);
       }
     } catch (error) {
@@ -146,10 +152,14 @@ export default function Land() {
     }
   };
   
-  
+
   const saveExistingProject = async () => {
+    if (currentKey === null) {
+      setOutput('Error: No project selected to save.');
+      return;
+    }
+  
     try {
-      console.log('Save existing project. isNewProject:', isNewProject);
       const response = await fetch('http://localhost:3001/api/save', {
         method: 'POST',
         headers: {
@@ -173,8 +183,36 @@ export default function Land() {
         setOutput('An unknown error occurred.');
       }
     }
-  };  
+  };
   
+
+  const modifyTitle = async (key: number, newTitle: string) => {
+    try {
+      const response = await fetch('http://localhost:3001/api/modify-title', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: session?.user?.email, key, newTitle }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error);
+      }
+
+      setOutput(result.message || 'Title updated successfully!');
+      fetchProjects(session?.user?.email as string);
+    } catch (error) {
+      if (error instanceof Error) {
+        setOutput(`Error: ${error.message}`);
+      } else {
+        setOutput('An unknown error occurred.');
+      }
+    }
+  };
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -199,20 +237,50 @@ export default function Land() {
             </div>
             <div className={styles.savesContent}>
               {Object.keys(projects).map((key) => (
-                <h2
-                  key={key}
-                  className={styles.saveItem}
-                  onClick={() => handleProjectClick(Number(key))}
-                >
-                  <RxCornerBottomLeft /> {projects[Number(key)].title}
-                </h2>
+                <div key={key} className={styles.saveItemContainer}>
+                  {editTitleKey === Number(key) ? (
+                    <>
+                      <input
+                        className={styles.editInput}
+                        type="text"
+                        value={newTitle}
+                        onChange={(e) => setNewTitle(e.target.value)}
+                      />
+                      <button
+                        className={styles.editButton}
+                        onClick={() => {
+                          modifyTitle(Number(key), newTitle);
+                          setEditTitleKey(null);
+                        }}
+                      >
+                        <FaCheck />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <h2
+                        className={styles.saveItem}
+                        onClick={() => handleProjectClick(Number(key))}
+                      >
+                        <RxCornerBottomLeft /> {projects[Number(key)].title} 
+                        <TbEdit
+                          className={styles.editIcon}
+                          onClick={() => {
+                            setEditTitleKey(Number(key));
+                            setNewTitle(projects[Number(key)].title);
+                          }}
+                        />
+                      </h2>
+                    </>
+                  )}
+                </div>
               ))}
             </div>
           </div>
           <div className={styles.codeBase}>
             <div className={styles.codeBaseHeader}>
-              <button className={styles.runButton} onClick={runCode}>Run Code</button>
-              <button className={styles.saveButton} onClick={saveCode}>Save Code</button>
+              <button className={styles.runButton} onClick={runCode}>Run Code <VscDebugRerun /></button>
+              <button className={styles.saveButton} onClick={saveCode}>Save Code <IoIosSave /></button>
             </div>
             <div className={styles.codeBaseContainer}>
               <CodeMirror
@@ -233,7 +301,7 @@ export default function Land() {
         </div>
         <div className={styles.outputContainer}>
           <h2>Output:</h2>
-          <pre>{output}</pre>
+          <pre className={styles.terminal}>{output}</pre>
         </div>
       </main>
       <footer className={styles.footer}></footer>
