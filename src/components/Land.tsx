@@ -34,11 +34,11 @@ export default function Land() {
         },
         body: JSON.stringify({ code }),
       });
+      const result = await response.json();
       if (!response.ok) {
-        throw new Error(`Server error: ${response.statusText}`);
+        throw new Error(result.error);
       }
-      const result = await response.text();
-      setOutput(result);
+      setOutput(result.output);
     } catch (error) {
       if (error instanceof Error) {
         setOutput(`Error: ${error.message}`);
@@ -46,9 +46,8 @@ export default function Land() {
         setOutput('An unknown error occurred.');
       }
     }
-  };
-  
-  
+  };  
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
