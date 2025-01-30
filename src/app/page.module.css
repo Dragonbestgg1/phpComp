@@ -12,7 +12,7 @@
   justify-items: center;
   min-height: 100svh;
   padding-top: 10px;
-  gap: 64px;
+  gap: 50px;
   font-family: var(--font-geist-sans);
   animation: fadeIn 1s ease-in-out;
 }
@@ -39,9 +39,13 @@
 
 .main {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 32px;
   grid-row-start: 2;
+  width: 100%;
+  height: 100%;
 }
 
 .main ol {
@@ -198,7 +202,8 @@ a.secondary {
   align-items: center;
 }
 .title{
-
+  cursor: default;
+  padding: 5px;
 }
 .modalButton{
   display: flex;
@@ -208,6 +213,8 @@ a.secondary {
   height: 100%;
   align-items: center;
 }
+
+
 
 /* #region button */
 
@@ -270,6 +277,107 @@ a.secondary {
 .button span {
   position: relative;
   z-index: 1;
+}
+
+/* #endregion */
+
+/* #region saves section */
+.savesContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 35vh;
+  height: 100%;
+  padding: 20px;
+  margin-left: 30px;
+  background-color: rgba(128, 128, 128, 0.4);
+  overflow-y: scroll;
+  overflow-x: hidden;
+  cursor: default;
+  border-radius: 15px;
+}
+
+.savesHeader{
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid white;
+  width: 100%;
+}
+
+.savesContainer::-webkit-scrollbar {
+  width: 12px;
+}
+
+.savesContainer::-webkit-scrollbar-track {
+  background: rgba(128, 128, 128, 0.01);
+  border-radius: 10px;
+}
+
+.savesContainer::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(0, 212, 255, 1), rgba(9, 9, 121, 1));
+  border-radius: 10px;
+}
+
+.savesContent{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 10px;
+  padding-left: 10px;
+  width: 100%;
+}
+
+.saveItem {
+  display: block;
+  font-size: x-large;
+  border-bottom: 3px solid rgba(255, 255, 255, 0);
+  width: 100%;
+  transition: border-bottom 0.5s ease;
+}
+
+.saveItem:hover {
+  border-bottom: 3px solid rgba(255, 255, 255, 1);
+}
+
+
+/* #endregion */
+
+/* #region code bade */
+
+.codeBase {
+  background-color: #1e1e1e;
+  width: 100%;
+  height: 80vh;
+  overflow: hidden;
+}
+
+.codeBaseHeader{
+  position: absolute;
+  background-color: #1e1e1e;
+  width: 100%;
+  height: 2vh;
+  z-index: 1;
+}
+
+.codeBaseContainer {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 80vh;
+  overflow-y: scroll;
+}
+
+.CodeMirror {
+  height: 100%;
 }
 
 /* #endregion */
