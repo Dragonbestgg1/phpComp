@@ -8,8 +8,16 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/server.js"
+      "src": "pages/api/(.*)",
+      "dest": "pages/api/server.js"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "pages/api/(.*)",
+      "destination": "pages/api/server.js"
     }
   ]
 }
+
+
