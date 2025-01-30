@@ -27,7 +27,7 @@ export default function Land() {
 
   const runCode = async () => {
     try {
-      const response = await fetch('/api/run', {
+      const response = await fetch('http://localhost:3001/api/run', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,7 +46,8 @@ export default function Land() {
         setOutput('An unknown error occurred.');
       }
     }
-  };  
+  };
+  
   
   return (
     <div className={styles.page}>

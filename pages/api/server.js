@@ -10,7 +10,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-app.post('/run', (req, res) => {
+app.post('/api/run', (req, res) => {  // Ensure the endpoint is /api/run
   const code = req.body.code;
   const tempFilePath = path.join(__dirname, 'temp.php');
 
@@ -21,7 +21,6 @@ app.post('/run', (req, res) => {
     }
 
     exec(`php ${tempFilePath}`, (error, stdout, stderr) => {
-      // Clean up the temporary file
       fs.unlink(tempFilePath, (unlinkErr) => {
         if (unlinkErr) {
           console.error(unlinkErr);
@@ -39,6 +38,10 @@ app.post('/run', (req, res) => {
       res.send(stdout);
     });
   });
+});
+
+app.listen(3001, () => {
+  console.log('Server running on http://localhost:3001');
 });
 
 module.exports = app;
