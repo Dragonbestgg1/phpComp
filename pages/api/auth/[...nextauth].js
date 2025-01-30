@@ -15,7 +15,7 @@ export default NextAuth({
       // console.log('JWT Callback - User:', user);
 
       if (user) {
-        
+
         token.userId = user.id;
         token.accessToken = user.accessToken;
 
@@ -35,7 +35,7 @@ export default NextAuth({
 
       return session;
     },
-    async redirect({ url, baseUrl }) {
+    async redirect({  baseUrl }) {
       // console.log('Redirect Callback - URL:', url);
       // console.log('Redirect Callback - Base URL:', baseUrl);
 
