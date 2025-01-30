@@ -13,7 +13,6 @@ export default NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.userId = user.id;
         token.accessToken = user.accessToken;
 
         // Create the JSON file
@@ -27,7 +26,6 @@ export default NextAuth({
 
         const jsonFilePath = path.join(process.cwd(), 'pages/api/json', `${email}.json`);
         const data = {
-          userId: user.id,
           token: user.accessToken,
         };
 
