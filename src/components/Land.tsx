@@ -27,13 +27,16 @@ export default function Land() {
 
   const runCode = async () => {
     try {
-      const response = await fetch('http://localhost:3001/run', {
+      const response = await fetch('/api/run', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ code }),
       });
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
       const result = await response.text();
       setOutput(result);
     } catch (error) {
@@ -43,8 +46,8 @@ export default function Land() {
         setOutput('An unknown error occurred.');
       }
     }
-  };
-
+  };  
+  
   return (
     <div className={styles.page}>
       <header className={styles.header}>
