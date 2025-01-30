@@ -25,28 +25,28 @@ export default function Land() {
     }
   };
 
-  const runCode = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/run', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code }),
-      });
-      const result = await response.json();
-      if (!response.ok) {
-        throw new Error(result.error);
-      }
-      setOutput(result.output);
-    } catch (error) {
-      if (error instanceof Error) {
-        setOutput(`Error: ${error.message}`);
-      } else {
-        setOutput('An unknown error occurred.');
-      }
-    }
-  };  
+  // const runCode = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:3001/api/run', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ code }),
+  //     });
+  //     const result = await response.json();
+  //     if (!response.ok) {
+  //       throw new Error(result.error);
+  //     }
+  //     setOutput(result.output);
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       setOutput(`Error: ${error.message}`);
+  //     } else {
+  //       setOutput('An unknown error occurred.');
+  //     }
+  //   }
+  // };  
 
   return (
     <div className={styles.page}>
@@ -79,7 +79,7 @@ export default function Land() {
           </div>
           <div className={styles.codeBase}>
             <div className={styles.codeBaseHeader}>
-              <button className={styles.runButton} onClick={runCode}>Run Code</button>
+              {/* <button className={styles.runButton} onClick={runCode}>Run Code</button> */}
             </div>
             <div className={styles.codeBaseContainer}>
               <CodeMirror
