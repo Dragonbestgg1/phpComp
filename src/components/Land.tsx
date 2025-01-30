@@ -14,7 +14,7 @@ export default function Land() {
   const { data: session } = useSession();
   const [isActive, setIsActive] = useState(false);
   const [code, setCode] = useState('<?php\n// Write your PHP code here...\n?>');
-  const [output, setOutput] = useState('');
+  // const [output, setOutput] = useState('');
 
   const handleAuthButtonClick = () => {
     setIsActive(!isActive);
@@ -100,7 +100,7 @@ export default function Land() {
         </div>
         <div className={styles.outputContainer}>
           <h2>Output:</h2>
-          <pre>{output}</pre>
+          {/* <pre>{output}</pre> */}
         </div>
       </main>
       <footer className={styles.footer}></footer>
