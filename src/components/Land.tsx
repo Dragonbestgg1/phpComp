@@ -22,7 +22,7 @@ type Project = {
 export default function Land() {
   const { data: session } = useSession();
   const [isActive, setIsActive] = useState(false);
-  const [code, setCode] = useState('<?php\n//Your php code goes here...\n\n?>');
+  const [code, setCode] = useState('<?php\n//Your php code goes here...\n//To save code first press on new file...\n?>');
   const [output, setOutput] = useState('');
   const [projects, setProjects] = useState<{ [key: number]: Project }>({});
   const [currentKey, setCurrentKey] = useState<number | null>(null);
@@ -100,7 +100,7 @@ export default function Land() {
 
     setNewKey(uniqueKey);
     setCurrentKey(uniqueKey);
-    setCode('<?php\n//Your php code goes here...\n\n?>');
+    setCode('<?php\n//This is a new file.\n//Start by writting your php code...\n?>');
     setNewTitle(''); // Reset the new title state
   };
 

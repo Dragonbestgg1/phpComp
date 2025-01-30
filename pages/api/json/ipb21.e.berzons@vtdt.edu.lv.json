@@ -2,5 +2,9 @@
   "1": {
     "title": "New Project",
     "code": "<?php\necho $i;\n?>"
+  },
+  "2": {
+    "title": "Potato",
+    "code": "<?php\n//Your php code goes here...\npotato\n?>"
   }
 }
