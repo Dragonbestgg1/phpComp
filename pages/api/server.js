@@ -1,9 +1,9 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const { exec } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import { exec } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 const app = express();
 
@@ -44,4 +44,4 @@ app.listen(3001, () => {
   console.log('Server running on http://localhost:3001');
 });
 
-module.exports = app;
+export default app;
