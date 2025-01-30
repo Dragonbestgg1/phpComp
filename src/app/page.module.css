@@ -357,6 +357,15 @@ a.secondary {
   border-bottom: 3px solid rgba(255, 255, 255, 1);
 }
 
+.addFile{
+  cursor: pointer;
+  color: white;
+  transition: color 0.5s ease;
+}
+
+.addFile:hover{
+  color: rgba(0, 212, 255, 1);
+}
 
 /* #endregion */
 
@@ -442,7 +451,6 @@ a.secondary {
 .saveButton:active{
   opacity: 0.1;
 }
-
 
 .codeBaseContainer {
   background-color: #1e1e1e;

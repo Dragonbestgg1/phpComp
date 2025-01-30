@@ -1,18 +1,6 @@
 {
-  "2": {
-    "title": "te nav",
-    "code": "<?php\necho \"nabadziba\";\n?>"
-  },
-  "3": {
-    "title": "Neee",
-    "code": "<?php\necho \"eeeeeeeeeeee\";\n?>"
-  },
-  "4": {
-    "title": "php code",
-    "code": "<?php\necho \"eeeeeeee\";\n\n?>"
-  },
-  "5": {
-    "title": "Kautkas",
-    "code": "<?php\n\necho \"ksdlaksdlaksldkalksdl\";\n?>"
+  "1": {
+    "title": "New Project",
+    "code": "<?php\necho $i;\n?>"
   }
 }

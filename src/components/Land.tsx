@@ -233,7 +233,7 @@ export default function Land() {
           <div className={styles.savesContainer}>
             <div className={styles.savesHeader}>
               <h2><FaFolder /> Projects</h2>
-              <h2 onClick={handleNewProjectClick}><FiFilePlus /></h2>
+              <h2 className={styles.addFile} onClick={handleNewProjectClick}><FiFilePlus /></h2>
             </div>
             <div className={styles.savesContent}>
               {Object.keys(projects).map((key) => (

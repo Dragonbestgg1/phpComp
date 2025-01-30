@@ -34,10 +34,15 @@ export default NextAuth({
           console.log('Ensuring directory exists:', path.dirname(jsonFilePath));
           await fs.promises.mkdir(path.dirname(jsonFilePath), { recursive: true });
 
-          // Write the JSON file
-          console.log('Writing JSON file:', jsonFilePath);
-          await fs.promises.writeFile(jsonFilePath, JSON.stringify(data, null, 2), 'utf-8');
-          console.log(`JSON file created: ${jsonFilePath}`);
+          // Check if the file already exists
+          if (fs.existsSync(jsonFilePath)) {
+            console.log(`JSON file already exists: ${jsonFilePath}`);
+          } else {
+            // Write the JSON file if it doesn't exist
+            console.log('Writing JSON file:', jsonFilePath);
+            await fs.promises.writeFile(jsonFilePath, JSON.stringify(data, null, 2), 'utf-8');
+            console.log(`JSON file created: ${jsonFilePath}`);
+          }
         } catch (error) {
           console.error('Error creating JSON file:', error);
           throw new Error('Internal Server Error');
