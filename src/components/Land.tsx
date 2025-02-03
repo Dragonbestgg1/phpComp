@@ -1,17 +1,9 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { FaFolder } from "react-icons/fa6";
-import { RxCornerBottomLeft } from "react-icons/rx";
-import { FiFilePlus } from "react-icons/fi";
-import { TbEdit } from "react-icons/tb";
-import { VscDebugRerun } from "react-icons/vsc";
-import { IoIosSave } from "react-icons/io";
-import { FaCheck } from "react-icons/fa";
-import CodeMirror from '@uiw/react-codemirror';
-import { php } from '@codemirror/lang-php';
-import { dracula } from '@uiw/codemirror-theme-dracula';
+import Header from "./Header";
+import ProjectsList from "./ProjectsList";
+import Editor from "./Editor";
+import Output from "./Output";
 import styles from "../app/page.module.css";
 
 type Project = {
@@ -28,10 +20,8 @@ export default function Land() {
   const [currentKey, setCurrentKey] = useState<number | null>(null);
   const [isNewProject, setIsNewProject] = useState(true);
   const [newKey, setNewKey] = useState<number | null>(null);
-  const [editTitleKey, setEditTitleKey] = useState<number | null>(null); // State for editing title
-  const [newTitle, setNewTitle] = useState(''); // State for new project title  
-  let keyCounter = Object.keys(projects).length;
-
+  const [editTitleKey, setEditTitleKey] = useState<number | null>(null);
+  const [newTitle, setNewTitle] = useState('');
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -47,7 +37,6 @@ export default function Land() {
       }
       const data: { [key: number]: Project } = await response.json();
       setProjects(data);
-      keyCounter = Object.keys(data).length;
     } catch (error) {
       setOutput(`Error fetching projects: ${error}`);
     }
@@ -89,7 +78,7 @@ export default function Land() {
     setCurrentKey(key);
     setIsNewProject(false);
     setCode(projects[key].code);
-    setNewTitle(projects[key].title); // Set the new title state when a project is clicked
+    setNewTitle(projects[key].title);
   };
 
   const handleNewProjectClick = () => {
@@ -100,8 +89,8 @@ export default function Land() {
 
     setNewKey(uniqueKey);
     setCurrentKey(uniqueKey);
-    setCode('<?php\n//This is a new file.\n//Start by writting your php code...\n?>');
-    setNewTitle(''); // Reset the new title state
+    setCode('<?php\n//This is a new file.\n//Start by writing your php code...\n?>');
+    setNewTitle('');
   };
 
   const saveCode = () => {
@@ -151,7 +140,6 @@ export default function Land() {
       }
     }
   };
-  
 
   const saveExistingProject = async () => {
     if (currentKey === null) {
@@ -184,7 +172,6 @@ export default function Land() {
       }
     }
   };
-  
 
   const modifyTitle = async (key: number, newTitle: string) => {
     try {
@@ -215,94 +202,22 @@ export default function Land() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>VTDT Code Editor</h1>
-          <div className={styles.modalButton}>
-            <button
-              className={`${styles.button} ${isActive ? styles.active : ""}`}
-              onClick={handleAuthButtonClick}
-            >
-              <span>{session ? 'Log Out' : 'Log in with Google'}</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header isActive={isActive} handleAuthButtonClick={handleAuthButtonClick} />
       <main className={styles.main}>
         <div className={styles.mainRow}>
-          <div className={styles.savesContainer}>
-            <div className={styles.savesHeader}>
-              <h2><FaFolder /> Projects</h2>
-              <h2 className={styles.addFile} onClick={handleNewProjectClick}><FiFilePlus /></h2>
-            </div>
-            <div className={styles.savesContent}>
-              {Object.keys(projects).map((key) => (
-                <div key={key} className={styles.saveItemContainer}>
-                  {editTitleKey === Number(key) ? (
-                    <>
-                      <input
-                        className={styles.editInput}
-                        type="text"
-                        value={newTitle}
-                        onChange={(e) => setNewTitle(e.target.value)}
-                      />
-                      <button
-                        className={styles.editButton}
-                        onClick={() => {
-                          modifyTitle(Number(key), newTitle);
-                          setEditTitleKey(null);
-                        }}
-                      >
-                        <FaCheck />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <h2
-                        className={styles.saveItem}
-                        onClick={() => handleProjectClick(Number(key))}
-                      >
-                        <RxCornerBottomLeft /> {projects[Number(key)].title} 
-                        <TbEdit
-                          className={styles.editIcon}
-                          onClick={() => {
-                            setEditTitleKey(Number(key));
-                            setNewTitle(projects[Number(key)].title);
-                          }}
-                        />
-                      </h2>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className={styles.codeBase}>
-            <div className={styles.codeBaseHeader}>
-              <button className={styles.runButton} onClick={runCode}>Run Code <VscDebugRerun /></button>
-              <button className={styles.saveButton} onClick={saveCode}>Save Code <IoIosSave /></button>
-            </div>
-            <div className={styles.codeBaseContainer}>
-              <CodeMirror
-                value={code}
-                extensions={[php()]}
-                theme={dracula}
-                onChange={(value) => {
-                  setCode(value);
-                }}
-                basicSetup={{
-                  lineNumbers: true,
-                  highlightActiveLine: true,
-                  syntaxHighlighting: true,
-                }}
-              />
-            </div>
-          </div>
+          <ProjectsList
+            projects={projects}
+            handleNewProjectClick={handleNewProjectClick}
+            handleProjectClick={handleProjectClick}
+            modifyTitle={modifyTitle}
+            setEditTitleKey={setEditTitleKey}
+            setNewTitle={setNewTitle}
+            newTitle={newTitle}
+            editTitleKey={editTitleKey}
+          />
+          <Editor code={code} setCode={setCode} runCode={runCode} saveCode={saveCode} />
         </div>
-        <div className={styles.outputContainer}>
-          <h2>Output:</h2>
-          <pre className={styles.terminal}>{output}</pre>
-        </div>
+        <Output output={output} />
       </main>
       <footer className={styles.footer}></footer>
     </div>
