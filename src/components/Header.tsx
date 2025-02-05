@@ -1,4 +1,4 @@
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import styles from "../app/page.module.css";
 
 interface HeaderProps {
