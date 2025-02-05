@@ -15,8 +15,7 @@ export default NextAuth({
       if (user) {
         token.accessToken = user.accessToken;
 
-        // Create the JSON file
-        const email = user.email; // Assuming user object has an email property
+        const email = user.email;
         console.log('Email retrieved:', email);
 
         if (!email) {
@@ -30,15 +29,12 @@ export default NextAuth({
         };
 
         try {
-          // Ensure the directory exists
           console.log('Ensuring directory exists:', path.dirname(jsonFilePath));
           await fs.promises.mkdir(path.dirname(jsonFilePath), { recursive: true });
 
-          // Check if the file already exists
           if (fs.existsSync(jsonFilePath)) {
             console.log(`JSON file already exists: ${jsonFilePath}`);
           } else {
-            // Write the JSON file if it doesn't exist
             console.log('Writing JSON file:', jsonFilePath);
             await fs.promises.writeFile(jsonFilePath, JSON.stringify(data, null, 2), 'utf-8');
             console.log(`JSON file created: ${jsonFilePath}`);
@@ -56,8 +52,14 @@ export default NextAuth({
       session.accessToken = token.accessToken;
       return session;
     },
-    async redirect({ baseUrl }) {
+    async redirect({ baseUrl, url }) {
+      console.log(`Redirecting to: ${url}`);
       return baseUrl;
+    },
+  },
+  events: {
+    error: (message) => {
+      console.error('NextAuth error:', message);
     },
   },
 });

@@ -25,7 +25,9 @@ appNext.prepare().then(() => {
     fs.writeFile(tempFilePath, code, (err) => {
       if (err) {
         console.error(err);
-        return res.status(500).json({ error: "Failed to write to temporary file." });
+        return res
+          .status(500)
+          .json({ error: "Failed to write to temporary file." });
       }
 
       exec(`php ${tempFilePath} 2>&1`, (error, stdout, stderr) => {
@@ -64,7 +66,13 @@ appNext.prepare().then(() => {
 
   app.get("/api/projects", (req, res) => {
     const { email } = req.query;
-    const jsonFilePath = path.join(__dirname, "pages", "api", "json", `${email}.json`);
+    const jsonFilePath = path.join(
+      __dirname,
+      "pages",
+      "api",
+      "json",
+      `${email}.json`
+    );
 
     handleJSONFile(jsonFilePath, (err, data) => {
       if (err) return res.status(err).json(data);
@@ -73,18 +81,30 @@ appNext.prepare().then(() => {
   });
 
   const saveJSONData = (jsonFilePath, userData, res, successMessage) => {
-    fs.writeFile(jsonFilePath, JSON.stringify(userData, null, 2), (writeErr) => {
-      if (writeErr) {
-        console.error(writeErr);
-        return res.status(500).json({ error: "Failed to write user JSON file." });
+    fs.writeFile(
+      jsonFilePath,
+      JSON.stringify(userData, null, 2),
+      (writeErr) => {
+        if (writeErr) {
+          console.error(writeErr);
+          return res
+            .status(500)
+            .json({ error: "Failed to write user JSON file." });
+        }
+        res.json({ message: successMessage });
       }
-      res.json({ message: successMessage });
-    });
+    );
   };
 
   app.post("/api/save", (req, res) => {
     const { email, code, key } = req.body;
-    const jsonFilePath = path.join(__dirname, "pages", "api", "json", `${email}.json`);
+    const jsonFilePath = path.join(
+      __dirname,
+      "pages",
+      "api",
+      "json",
+      `${email}.json`
+    );
 
     handleJSONFile(jsonFilePath, (err, userData) => {
       if (err && err !== 404) return res.status(err).json(userData);
@@ -99,26 +119,47 @@ appNext.prepare().then(() => {
 
   app.post("/api/create", (req, res) => {
     const { email, code, key } = req.body;
-    const jsonFilePath = path.join(__dirname, "pages", "api", "json", `${email}.json`);
+    const jsonFilePath = path.join(
+      __dirname,
+      "pages",
+      "api",
+      "json",
+      `${email}.json`
+    );
 
     handleJSONFile(jsonFilePath, (err, userData) => {
       if (err && err !== 404) return res.status(err).json(userData);
 
       userData = userData || {};
-      userData[key] = { title: "New Project", code: code || "<?php\n// Write your PHP code here...\n?>" };
+      userData[key] = {
+        title: "New Project",
+        code: code || "<?php\n// Write your PHP code here...\n?>",
+      };
 
-      saveJSONData(jsonFilePath, userData, res, "New project created successfully!");
+      saveJSONData(
+        jsonFilePath,
+        userData,
+        res,
+        "New project created successfully!"
+      );
     });
   });
 
   app.post("/api/modify-title", (req, res) => {
     const { email, key, newTitle } = req.body;
-    const jsonFilePath = path.join(__dirname, "pages", "api", "json", `${email}.json`);
+    const jsonFilePath = path.join(
+      __dirname,
+      "pages",
+      "api",
+      "json",
+      `${email}.json`
+    );
 
     handleJSONFile(jsonFilePath, (err, userData) => {
       if (err) return res.status(err).json(userData);
 
-      if (!userData[key]) return res.status(404).json({ error: "Project not found." });
+      if (!userData[key])
+        return res.status(404).json({ error: "Project not found." });
       userData[key].title = newTitle;
 
       saveJSONData(jsonFilePath, userData, res, "Title updated successfully!");
@@ -128,15 +169,21 @@ appNext.prepare().then(() => {
   const server = createServer((req, res) => {
     const parsedUrl = url.parse(req.url, true);
     const { pathname } = parsedUrl;
-
-    console.log("Incoming request for:", pathname); // Log incoming requests
-
-    if (pathname.startsWith("/api/")) {
+  
+    console.log('Incoming request for:', pathname);
+  
+    if (pathname.startsWith('/api/auth')) {
+      // Let Next.js handle NextAuth authentication routes
+      handle(req, res, parsedUrl);
+    } else if (pathname.startsWith('/api/')) {
+      // Use Express for your custom API routes
       app(req, res);
     } else {
+      // For all other requests, let Next.js handle them
       handle(req, res, parsedUrl);
     }
   });
+  
 
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);

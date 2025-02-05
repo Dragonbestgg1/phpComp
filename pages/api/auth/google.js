@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
   res.setHeader('Set-Cookie', cookie.serialize('test', 'hello', {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development',
+    secure: process.env.NODE_ENV !== 'production',
     maxAge: 14400,
     path: '/',
   })); 
