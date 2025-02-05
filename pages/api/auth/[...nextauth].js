@@ -1,7 +1,8 @@
-import NextAuth from 'next-auth';
-import GoogleProvider from 'next-auth/providers/google';
-import fs from 'fs';
-import path from 'path';
+import NextAuth from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import clientPromise from "../../../utils/mongodb";
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+import { ObjectId } from "mongodb"; // Ensure ObjectId is imported
 
 export default NextAuth({
   providers: [
@@ -10,56 +11,102 @@ export default NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
+  adapter: {
+    ...MongoDBAdapter(clientPromise),
+    async createUser(user) {
+      console.log("Skipping automatic user creation:", user);
+      return null; // Prevents NextAuth from inserting user automatically
+    },
+  },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.accessToken = user.accessToken;
+    async signIn({ user, account }) {
+      console.log("SignIn callback executed:", user);
 
-        const email = user.email;
-        console.log('Email retrieved:', email);
+      try {
+        const db = (await clientPromise).db();
+        const usersCollection = db.collection("users");
+        const accountsCollection = db.collection("accounts");
 
-        if (!email) {
-          console.error('Email is missing from user object.');
-          throw new Error('Email is required.');
+        let existingUser = await usersCollection.findOne({ email: user.email });
+
+        if (!existingUser) {
+          console.log("Manually inserting user:", user.email);
+          const newUser = await usersCollection.insertOne({
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            projects: [
+              { title: "New Project", code: '<?php\necho "lohi";\n?>' },
+              {
+                title: "Potato",
+                code: "<?php\n//Your php code goes here...\npotato\n?>",
+              },
+              { title: "New Project", code: '<?php\necho "debils";\n?>' },
+            ],
+          });
+
+          const userId = newUser.insertedId.toString(); // Convert ObjectId to string
+
+          console.log("Manually linking account for user ID:", userId);
+          await accountsCollection.insertOne({
+            userId,
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+            type: account.type,
+            access_token: account.access_token,
+            expires_at: account.expires_at,
+            token_type: account.token_type,
+            id_token: account.id_token,
+            scope: account.scope,
+          });
+
+          console.log("Account linked successfully.");
+
+          // Retrieve the inserted user and return it for NextAuth
+          existingUser = await usersCollection.findOne({
+            _id: new ObjectId(userId),
+          });
         }
 
-        const jsonFilePath = path.join(process.cwd(), 'pages/api/json', `${email}.json`);
-        const data = {
-          token: user.accessToken,
-        };
+        // Ensure NextAuth recognizes the user and adds the user.id to the user object
+        user.id = existingUser._id.toString(); // Convert ObjectId to string for NextAuth
+        console.log("Returning user to NextAuth:", user);
 
-        try {
-          console.log('Ensuring directory exists:', path.dirname(jsonFilePath));
-          await fs.promises.mkdir(path.dirname(jsonFilePath), { recursive: true });
-
-          if (fs.existsSync(jsonFilePath)) {
-            console.log(`JSON file already exists: ${jsonFilePath}`);
-          } else {
-            console.log('Writing JSON file:', jsonFilePath);
-            await fs.promises.writeFile(jsonFilePath, JSON.stringify(data, null, 2), 'utf-8');
-            console.log(`JSON file created: ${jsonFilePath}`);
-          }
-        } catch (error) {
-          console.error('Error creating JSON file:', error);
-          throw new Error('Internal Server Error');
-        }
+        return true;
+      } catch (error) {
+        console.error("Error inserting user manually:", error);
+        return false; // Prevent sign-in on error
       }
+    },
 
+    async jwt({ token, user }) {
+      if (user && user.id) {
+        console.log("Setting token.id in jwt callback:", user.id);
+        // Store user.id in token only when user is present (during the initial sign-in)
+        token.id = user.id; // Save user ID in the token
+      } else if (!token.id) {
+        console.log(
+          "Token does not have an ID. Retrying token.id from session..."
+        );
+        // On subsequent requests, fallback to use existing token.id if not set
+        token.id = token.id || null;
+      }
       return token;
     },
+
     async session({ session, token }) {
-      session.userId = token.userId;
-      session.accessToken = token.accessToken;
+      console.log("Session callback executed:", session, token); // For debugging purposes
+
+      if (token?.id) {
+        console.log("Setting session.user.id from token:", token.id);
+        session.user.id = token.id; // Retrieve user ID from token
+      } else {
+        console.error("Token ID is missing in session callback!");
+      }
+
       return session;
     },
-    async redirect({ baseUrl, url }) {
-      console.log(`Redirecting to: ${url}`);
-      return baseUrl;
-    },
   },
-  events: {
-    error: (message) => {
-      console.error('NextAuth error:', message);
-    },
-  },
+
+  debug: true,
 });

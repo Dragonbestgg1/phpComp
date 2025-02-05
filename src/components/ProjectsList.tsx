@@ -1,3 +1,4 @@
+import React, { Dispatch, SetStateAction } from "react";
 import { FaFolder } from "react-icons/fa6";
 import { FiFilePlus } from "react-icons/fi";
 import { RxCornerBottomLeft } from "react-icons/rx";
@@ -11,14 +12,14 @@ interface Project {
 }
 
 interface ProjectsListProps {
-  projects: { [key: number]: Project };
+  projects: { [key: string]: Project };
   handleNewProjectClick: () => void;
-  handleProjectClick: (key: number) => void;
-  modifyTitle: (key: number, newTitle: string) => void;
-  setEditTitleKey: (key: number | null) => void;
-  setNewTitle: (title: string) => void;
+  handleProjectClick: (key: string) => void;
+  modifyTitle: (key: string, newTitle: string) => void;
   newTitle: string;
-  editTitleKey: number | null;
+  setNewTitle: (title: string) => void;
+  editTitleKey: string | null;
+  setEditTitleKey: Dispatch<SetStateAction<string | null>>;
 }
 
 export default function ProjectsList({
@@ -26,21 +27,25 @@ export default function ProjectsList({
   handleNewProjectClick,
   handleProjectClick,
   modifyTitle,
-  setEditTitleKey,
-  setNewTitle,
   newTitle,
-  editTitleKey
+  setNewTitle,
+  editTitleKey,
+  setEditTitleKey,
 }: ProjectsListProps) {
   return (
     <div className={styles.savesContainer}>
       <div className={styles.savesHeader}>
-        <h2><FaFolder /> Projects</h2>
-        <h2 className={styles.addFile} onClick={handleNewProjectClick}><FiFilePlus /></h2>
+        <h2>
+          <FaFolder /> Projects
+        </h2>
+        <h2 className={styles.addFile} onClick={handleNewProjectClick}>
+          <FiFilePlus />
+        </h2>
       </div>
       <div className={styles.savesContent}>
         {Object.keys(projects).map((key) => (
           <div key={key} className={styles.saveItemContainer}>
-            {editTitleKey === Number(key) ? (
+            {editTitleKey === key ? (
               <>
                 <input
                   className={styles.editInput}
@@ -51,7 +56,7 @@ export default function ProjectsList({
                 <button
                   className={styles.editButton}
                   onClick={() => {
-                    modifyTitle(Number(key), newTitle);
+                    modifyTitle(key, newTitle);
                     setEditTitleKey(null);
                   }}
                 >
@@ -62,14 +67,15 @@ export default function ProjectsList({
               <>
                 <h2
                   className={styles.saveItem}
-                  onClick={() => handleProjectClick(Number(key))}
+                  onClick={() => handleProjectClick(key)}
                 >
-                  <RxCornerBottomLeft /> {projects[Number(key)].title} 
+                  <RxCornerBottomLeft /> {projects[key].title}
                   <TbEdit
                     className={styles.editIcon}
-                    onClick={() => {
-                      setEditTitleKey(Number(key));
-                      setNewTitle(projects[Number(key)].title);
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent the click from triggering handleProjectClick
+                      setEditTitleKey(key);
+                      setNewTitle(projects[key].title);
                     }}
                   />
                 </h2>

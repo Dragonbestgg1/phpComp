@@ -1,25 +1,31 @@
-import cookie from 'cookie';
+// pages/api/setCookie.js
+import { NextApiRequest, NextApiResponse } from 'next';
+import { serialize } from 'cookie';
 
-export default async function handler(req, res) {
-  const { query } = req;
+export default function handler(req, res) {
+  // Extract data from query parameters or request body if needed
+  const { user_id, token } = req.query;
 
   const data = {
-    userId: query.user_id,
-    token: query.token,
+    userId: user_id,
+    token: token,
   };
 
   console.log('Data to be set in cookie:', data);
 
-  res.setHeader('Set-Cookie', cookie.serialize('test', 'hello', {
+  // Serialize the cookie value
+  const cookieValue = serialize('userData', JSON.stringify(data), {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== 'production',
-    maxAge: 14400,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 60 * 60 * 4, 
     path: '/',
-  })); 
+    sameSite: 'lax',
+  });  
 
+  // Set the cookie header
   res.setHeader('Set-Cookie', cookieValue);
 
-  // Redirect to the homepage
+  // Redirect to the homepage or another page
   res.writeHead(302, { Location: '/' });
   res.end();
 }
