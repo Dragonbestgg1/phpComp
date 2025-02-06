@@ -107,7 +107,7 @@ export default NextAuth({
       options: {
         httpOnly: true,
         sameSite: 'lax',
-        secure: false, //process.env.NODE_ENV === 'production'
+        secure: process.env.NODE_ENV === 'production', 
         path: '/',
       },
     },
