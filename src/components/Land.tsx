@@ -12,7 +12,6 @@ type Project = {
 };
 
 export default function Land() {
-  const { data: session } = useSession();
   const [isActive, setIsActive] = useState(false);
   const [code, setCode] = useState('<?php\n//Your PHP code goes here...\n//To save code, first press on "New File"...\n?>');
   const [output, setOutput] = useState('');
@@ -22,18 +21,21 @@ export default function Land() {
   const [newKey, setNewKey] = useState<string | null>(null);
   const [editTitleKey, setEditTitleKey] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState('');
+  const { data: session, status } = useSession();
 
   useEffect(() => {
-    if (session?.user?.email) {
+    if (status === "authenticated" && session?.user?.email) {
       console.log('Session found:', session);
       fetchProjects();
-    } else {
-      console.log('No active session');
     }
-  }, [session]);
-  
+  }, [session, status]);
+
 
   const fetchProjects = async () => {
+    if (!session?.user?.email) {
+      setOutput("Error: No active session.");
+      return;
+    }
     try {
       const response = await fetch('/api/projects');
       if (!response.ok) {
@@ -111,6 +113,10 @@ export default function Land() {
   };
 
   const saveNewProject = async () => {
+    if (!session?.user?.email) {
+      setOutput("Error: No active session.");
+      return;
+    }
     if (newKey === null) {
       setOutput("Error: No project key available to save.");
       return;
@@ -125,6 +131,7 @@ export default function Land() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
+        credentials: 'include',
       });
 
       const result = await response.json();
@@ -150,7 +157,12 @@ export default function Land() {
     }
   };
 
+
   const saveExistingProject = async () => {
+    if (!session?.user?.email) {
+      setOutput("Error: No active session.");
+      return;
+    }
     if (currentKey === null) {
       setOutput("Error: No project selected to save.");
       return;

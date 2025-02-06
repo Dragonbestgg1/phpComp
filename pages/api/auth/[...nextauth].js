@@ -35,14 +35,7 @@ export default NextAuth({
             email: user.email,
             name: user.name,
             image: user.image,
-            projects: [
-              { title: "New Project", code: '<?php\necho "lohi";\n?>' },
-              {
-                title: "Potato",
-                code: "<?php\n//Your php code goes here...\npotato\n?>",
-              },
-              { title: "New Project", code: '<?php\necho "debils";\n?>' },
-            ],
+            projects: [], // Ensure projects is an array but starts empty
           });
 
           const userId = newUser.insertedId.toString(); // Convert ObjectId to string
@@ -80,33 +73,43 @@ export default NextAuth({
     },
 
     async jwt({ token, user }) {
-      if (user && user.id) {
-        console.log("Setting token.id in jwt callback:", user.id);
-        // Store user.id in token only when user is present (during the initial sign-in)
-        token.id = user.id; // Save user ID in the token
-      } else if (!token.id) {
-        console.log(
-          "Token does not have an ID. Retrying token.id from session..."
-        );
-        // On subsequent requests, fallback to use existing token.id if not set
-        token.id = token.id || null;
+      console.log("JWT callback executed. Token before:", token, "User:", user);
+    
+      // On first sign-in, user is available → Store user.id in the token
+      if (user) {
+        token.id = user.id || user.sub; // Ensure user ID is stored
       }
+    
+      console.log("JWT callback returning token:", token);
       return token;
-    },
-
+    },    
+  
     async session({ session, token }) {
-      console.log("Session callback executed:", session, token); // For debugging purposes
-
+      console.log("Session callback executed. Token received:", token);
+    
       if (token?.id) {
-        console.log("Setting session.user.id from token:", token.id);
-        session.user.id = token.id; // Retrieve user ID from token
+        session.user.id = token.id; // Attach the user ID from the token
       } else {
         console.error("Token ID is missing in session callback!");
       }
-
+    
+      console.log("Updated session:", session);
       return session;
+    },    
+  },
+  session: {
+    strategy: "jwt",
+    jwt: true,
+  },
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token', // default cookie name
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false, //process.env.NODE_ENV === 'production'
+        path: '/',
+      },
     },
   },
-
-  debug: true,
 });
