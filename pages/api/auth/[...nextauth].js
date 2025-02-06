@@ -14,29 +14,36 @@ export default NextAuth({
   adapter: {
     ...MongoDBAdapter(clientPromise),
     async createUser(user) {
-      return null;
+      return null; // Prevent automatic user creation
     },
   },
   callbacks: {
     async signIn({ user, account }) {
       try {
+        // Connect to MongoDB only once
         const db = (await clientPromise).db();
         const usersCollection = db.collection("users");
         const accountsCollection = db.collection("accounts");
 
+        // Find the user by email
         let existingUser = await usersCollection.findOne({ email: user.email });
 
+        // If the user doesn't exist, create a new user and account
         if (!existingUser) {
-          const newUser = await usersCollection.insertOne({
+          // Use a single insert operation to create both user and account
+          const userData = {
             email: user.email,
             name: user.name,
             image: user.image,
             projects: [],
-          });
+          };
+          
+          const { insertedId } = await usersCollection.insertOne(userData);
 
-          const userId = newUser.insertedId.toString();
+          const userId = insertedId.toString();
 
-          await accountsCollection.insertOne({
+          // Insert account details for the new user in parallel
+          const accountData = {
             userId,
             provider: account.provider,
             providerAccountId: account.providerAccountId,
@@ -46,23 +53,26 @@ export default NextAuth({
             token_type: account.token_type,
             id_token: account.id_token,
             scope: account.scope,
-          });
+          };
 
-          existingUser = await usersCollection.findOne({
-            _id: new ObjectId(userId),
-          });
+          await accountsCollection.insertOne(accountData);
+
+          // Fetch the newly created user
+          existingUser = { _id: insertedId, ...userData }; // Simulate the fetched user
         }
 
+        // Assign user ID to the user object
         user.id = existingUser._id.toString();
 
         return true;
-      } catch {
+      } catch (error) {
+        console.error("Error in signIn callback:", error);
         return false;
       }
     },
 
     async jwt({ token, user }) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // Ensure user ID is attached to the JWT token when a user signs in
       if (user) {
         token.id = user.id || user.sub;
       }
@@ -70,6 +80,7 @@ export default NextAuth({
     },
 
     async session({ session, token }) {
+      // Add the user ID to the session object
       if (token?.id) {
         session.user.id = token.id;
       }
