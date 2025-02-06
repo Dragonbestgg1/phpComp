@@ -1,5 +1,3 @@
-// Output.tsx
-
 import styles from "../app/page.module.css";
 
 interface OutputProps {

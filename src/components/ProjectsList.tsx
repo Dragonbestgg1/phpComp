@@ -73,7 +73,7 @@ export default function ProjectsList({
                   <TbEdit
                     className={styles.editIcon}
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent the click from triggering handleProjectClick
+                      e.stopPropagation();
                       setEditTitleKey(key);
                       setNewTitle(projects[key].title);
                     }}

@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import clientPromise from "../../../utils/mongodb";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import { ObjectId } from "mongodb"; // Ensure ObjectId is imported
+import { ObjectId } from "mongodb";
 
 export default NextAuth({
   providers: [
@@ -14,14 +14,11 @@ export default NextAuth({
   adapter: {
     ...MongoDBAdapter(clientPromise),
     async createUser(user) {
-      console.log("Skipping automatic user creation:", user);
-      return null; // Prevents NextAuth from inserting user automatically
+      return null;
     },
   },
   callbacks: {
     async signIn({ user, account }) {
-      console.log("SignIn callback executed:", user);
-
       try {
         const db = (await clientPromise).db();
         const usersCollection = db.collection("users");
@@ -30,17 +27,15 @@ export default NextAuth({
         let existingUser = await usersCollection.findOne({ email: user.email });
 
         if (!existingUser) {
-          console.log("Manually inserting user:", user.email);
           const newUser = await usersCollection.insertOne({
             email: user.email,
             name: user.name,
             image: user.image,
-            projects: [], // Ensure projects is an array but starts empty
+            projects: [],
           });
 
-          const userId = newUser.insertedId.toString(); // Convert ObjectId to string
+          const userId = newUser.insertedId.toString();
 
-          console.log("Manually linking account for user ID:", userId);
           await accountsCollection.insertOne({
             userId,
             provider: account.provider,
@@ -53,49 +48,32 @@ export default NextAuth({
             scope: account.scope,
           });
 
-          console.log("Account linked successfully.");
-
-          // Retrieve the inserted user and return it for NextAuth
           existingUser = await usersCollection.findOne({
             _id: new ObjectId(userId),
           });
         }
 
-        // Ensure NextAuth recognizes the user and adds the user.id to the user object
-        user.id = existingUser._id.toString(); // Convert ObjectId to string for NextAuth
-        console.log("Returning user to NextAuth:", user);
+        user.id = existingUser._id.toString();
 
         return true;
       } catch (error) {
-        console.error("Error inserting user manually:", error);
-        return false; // Prevent sign-in on error
+        return false;
       }
     },
 
     async jwt({ token, user }) {
-      console.log("JWT callback executed. Token before:", token, "User:", user);
-    
-      // On first sign-in, user is available → Store user.id in the token
       if (user) {
-        token.id = user.id || user.sub; // Ensure user ID is stored
+        token.id = user.id || user.sub;
       }
-    
-      console.log("JWT callback returning token:", token);
       return token;
-    },    
-  
+    },
+
     async session({ session, token }) {
-      console.log("Session callback executed. Token received:", token);
-    
       if (token?.id) {
-        session.user.id = token.id; // Attach the user ID from the token
-      } else {
-        console.error("Token ID is missing in session callback!");
+        session.user.id = token.id;
       }
-    
-      console.log("Updated session:", session);
       return session;
-    },    
+    },
   },
   session: {
     strategy: "jwt",
@@ -103,11 +81,11 @@ export default NextAuth({
   },
   cookies: {
     sessionToken: {
-      name: 'next-auth.session-token', // default cookie name
+      name: 'next-auth.session-token',
       options: {
         httpOnly: true,
         sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production', 
+        secure: process.env.NODE_ENV === 'production',
         path: '/',
       },
     },

@@ -1,5 +1,3 @@
-// Editor.tsx
-
 import CodeMirror from '@uiw/react-codemirror';
 import { php } from '@codemirror/lang-php';
 import { dracula } from '@uiw/codemirror-theme-dracula';

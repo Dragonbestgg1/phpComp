@@ -1,5 +1,4 @@
 // pages/api/setCookie.js
-import { NextApiRequest, NextApiResponse } from 'next';
 import { serialize } from 'cookie';
 
 export default function handler(req, res) {

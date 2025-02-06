@@ -25,11 +25,9 @@ export default function Land() {
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.email) {
-      console.log('Session found:', session);
       fetchProjects();
     }
   }, [session, status]);
-
 
   const fetchProjects = async () => {
     if (!session?.user?.email) {
@@ -42,7 +40,6 @@ export default function Land() {
         throw new Error(`Error fetching projects: ${response.statusText}`);
       }
       const data = await response.json();
-      console.log('Projects fetched:', data);
       setProjects(data.projects || {});
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -66,7 +63,7 @@ export default function Land() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          code, // This will send the PHP code to the backend for execution
+          code,
         }),
       });
   
@@ -76,7 +73,7 @@ export default function Land() {
         throw new Error(result.error || "Error running code");
       }
   
-      setOutput(result.output); // Display the output from JDoodle
+      setOutput(result.output);
     } catch (error) {
       if (error instanceof Error) {
         setOutput(`Error: ${error.message}`);
@@ -85,7 +82,6 @@ export default function Land() {
       }
     }
   };
-  
 
   const handleProjectClick = (key: string) => {
     setCurrentKey(key);
@@ -160,7 +156,6 @@ export default function Land() {
       }
     }
   };
-
 
   const saveExistingProject = async () => {
     if (!session?.user?.email) {
