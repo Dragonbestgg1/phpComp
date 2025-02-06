@@ -61,7 +61,7 @@ export default NextAuth({
       }
     },
 
-    async jwt({ token }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id || user.sub;
       }

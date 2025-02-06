@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import Header from './Header';
 import ProjectsList from './ProjectsList';
@@ -23,7 +23,7 @@ export default function Land() {
   const [newTitle, setNewTitle] = useState('');
   const { data: session, status } = useSession();
 
-  const fetchProjects = async () => {
+  const fetchProjects = useCallback(async () => {
     if (!session?.user?.email) {
       setOutput("Error: No active session.");
       return;
@@ -38,7 +38,7 @@ export default function Land() {
     } catch (error) {
       console.error('Error fetching projects:', error);
     }
-  };
+  }, [session?.user?.email]);
 
   useEffect(() => {
     if (status === "authenticated" && session?.user?.email) {
