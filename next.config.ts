@@ -9,10 +9,8 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
-  experimental: {},
   trailingSlash: false,
-  pageExtensions: ["tsx", "ts"],
-  
+  pageExtensions: ["tsx", "ts", "js"], // Ensure JS files are considered as well
 };
 
 export default nextConfig;
