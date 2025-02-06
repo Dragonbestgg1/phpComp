@@ -23,12 +23,6 @@ export default function Land() {
   const [newTitle, setNewTitle] = useState('');
   const { data: session, status } = useSession();
 
-  useEffect(() => {
-    if (status === "authenticated" && session?.user?.email) {
-      fetchProjects();
-    }
-  }, [session, status]);
-
   const fetchProjects = async () => {
     if (!session?.user?.email) {
       setOutput("Error: No active session.");
@@ -45,6 +39,12 @@ export default function Land() {
       console.error('Error fetching projects:', error);
     }
   };
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.email) {
+      fetchProjects();
+    }
+  }, [session, status, fetchProjects]);
 
   const handleAuthButtonClick = () => {
     setIsActive(!isActive);
