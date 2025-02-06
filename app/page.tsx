@@ -9,10 +9,6 @@ import Editor from './components/Editor';
 import Output from './components/Output';
 import styles from './page.module.css';
 
-const Land = dynamic(() => import('./components/Land'), {
-  ssr: false,
-});
-
 type Project = {
   title: string;
   code: string;
