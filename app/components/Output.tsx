@@ -1,4 +1,4 @@
-import styles from "../app/page.module.css";
+import styles from "../page.module.css";
 
 interface OutputProps {
   output: string;

@@ -4,7 +4,7 @@ import { FiFilePlus } from "react-icons/fi";
 import { RxCornerBottomLeft } from "react-icons/rx";
 import { TbEdit } from "react-icons/tb";
 import { FaCheck } from "react-icons/fa";
-import styles from "../app/page.module.css";
+import styles from "../page.module.css";
 
 interface Project {
   title: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import ClientWrapper from "@/components/ClientWrapper";
+import ClientWrapper from "./components/ClientWrapper";
 
 export default function Page() {
   return (

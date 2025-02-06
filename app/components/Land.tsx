@@ -4,7 +4,7 @@ import Header from './Header';
 import ProjectsList from './ProjectsList';
 import Editor from './Editor';
 import Output from './Output';
-import styles from '../app/page.module.css';
+import styles from '../page.module.css';
 
 type Project = {
   title: string;

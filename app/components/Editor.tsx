@@ -3,7 +3,7 @@ import { php } from '@codemirror/lang-php';
 import { dracula } from '@uiw/codemirror-theme-dracula';
 import { VscDebugRerun } from "react-icons/vsc";
 import { IoIosSave } from "react-icons/io";
-import styles from "../app/page.module.css";
+import styles from "../page.module.css";
 
 interface EditorProps {
   code: string;
