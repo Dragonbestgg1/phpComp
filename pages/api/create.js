@@ -29,13 +29,13 @@ export default async function handler(req, res) {
         );
 
         res.status(200).json({ message: 'New project created successfully!', key });
-      } catch (error) {
+      } catch {
         res.status(500).json({ error: 'Failed to create project.' });
       }
     } else {
       res.status(405).json({ error: 'Method not allowed' });
     }
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }

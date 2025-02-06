@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       const userProjects = await projectsCollection.findOne({ email });
       const projects = userProjects ? userProjects.projects : {};
       res.status(200).json({ projects });
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Failed to fetch projects.' });
     }
   } else {

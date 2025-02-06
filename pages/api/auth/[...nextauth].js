@@ -56,7 +56,7 @@ export default NextAuth({
         user.id = existingUser._id.toString();
 
         return true;
-      } catch (error) {
+      } catch {
         return false;
       }
     },

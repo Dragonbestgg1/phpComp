@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       );
 
       res.status(200).json({ message: 'Title updated successfully!' });
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Failed to update title.' });
     }
   } else {

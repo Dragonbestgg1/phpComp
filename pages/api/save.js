@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       );
 
       res.status(200).json({ message: 'Code saved successfully!' });
-    } catch (error) {
+    } catch {
       res.status(500).json({ error: 'Failed to save project.' });
     }
   } else {
