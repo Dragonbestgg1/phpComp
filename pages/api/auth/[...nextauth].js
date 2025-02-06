@@ -2,7 +2,6 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import clientPromise from "../../../utils/mongodb";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import { ObjectId } from "mongodb";
 
 export default NextAuth({
   providers: [
@@ -13,57 +12,63 @@ export default NextAuth({
   ],
   adapter: {
     ...MongoDBAdapter(clientPromise),
-    async createUser(user) {
+    async createUser() {
       return null; // Prevent automatic user creation
     },
   },
   callbacks: {
     async signIn({ user, account }) {
       try {
-        // Connect to MongoDB only once
         const db = (await clientPromise).db();
         const usersCollection = db.collection("users");
         const accountsCollection = db.collection("accounts");
 
-        // Find the user by email
-        let existingUser = await usersCollection.findOne({ email: user.email });
+        // Use upsert for creating or updating the user (and prevent unnecessary find)
+        const { upsertedId, matchedCount } = await usersCollection.updateOne(
+          { email: user.email }, 
+          {
+            $setOnInsert: { // Only set these values if the user is inserted
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              projects: [],
+            }
+          },
+          { upsert: true } // If no user is found, insert a new one
+        );
 
-        // If the user doesn't exist, create a new user and account
-        if (!existingUser) {
-          // Use a single insert operation to create both user and account
-          const userData = {
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            projects: [],
-          };
-          
-          const { insertedId } = await usersCollection.insertOne(userData);
+        // Fetch the user data if they were just inserted (or already exists)
+        const existingUser = await usersCollection.findOne({
+          _id: upsertedId || (matchedCount > 0 && user.email),
+        });
 
-          const userId = insertedId.toString();
+        if (!existingUser) return false; // Handle cases where user is neither inserted nor found
 
-          // Insert account details for the new user in parallel
-          const accountData = {
-            userId,
-            provider: account.provider,
-            providerAccountId: account.providerAccountId,
-            type: account.type,
-            access_token: account.access_token,
-            expires_at: account.expires_at,
-            token_type: account.token_type,
-            id_token: account.id_token,
-            scope: account.scope,
-          };
+        // Insert the account data (if user was inserted or updated)
+        const accountData = {
+          userId: existingUser._id.toString(),
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          type: account.type,
+          access_token: account.access_token,
+          expires_at: account.expires_at,
+          token_type: account.token_type,
+          id_token: account.id_token,
+          scope: account.scope,
+        };
 
-          await accountsCollection.insertOne(accountData);
+        // Use bulkWrite to insert the account data only if the account does not already exist
+        await accountsCollection.bulkWrite([
+          {
+            updateOne: {
+              filter: { userId: existingUser._id.toString(), providerAccountId: account.providerAccountId },
+              update: { $set: accountData },
+              upsert: true, // Insert if no matching account found
+            },
+          },
+        ]);
 
-          // Fetch the newly created user
-          existingUser = { _id: insertedId, ...userData }; // Simulate the fetched user
-        }
-
-        // Assign user ID to the user object
         user.id = existingUser._id.toString();
-
         return true;
       } catch (error) {
         console.error("Error in signIn callback:", error);
@@ -72,7 +77,7 @@ export default NextAuth({
     },
 
     async jwt({ token, user }) {
-      // Ensure user ID is attached to the JWT token when a user signs in
+      // Attach user ID to the JWT token
       if (user) {
         token.id = user.id || user.sub;
       }
@@ -80,7 +85,7 @@ export default NextAuth({
     },
 
     async session({ session, token }) {
-      // Add the user ID to the session object
+      // Add the user ID to the session
       if (token?.id) {
         session.user.id = token.id;
       }
