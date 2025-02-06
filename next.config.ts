@@ -10,11 +10,10 @@ const nextConfig: NextConfig = {
     return config;
   },
   output: "standalone",
-  assetPrefix: process.env.NODE_ENV === "production" ? "" : undefined,
-  experimental: {
-
-  },
+  assetPrefix: process.env.NODE_ENV === "production" ? "/_next/" : "",
+  experimental: {},
   trailingSlash: false,
+  pageExtensions: ["tsx", "ts"],
 };
 
 export default nextConfig;
