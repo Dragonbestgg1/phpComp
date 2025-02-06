@@ -1,10 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    // Other experimental features you might need
+  webpack(config) {
+    config.resolve.fallback = {
+      fs: false,
+      path: false,
+      os: false,
+    };
+    return config;
   },
-  // Other config options here
+  output: "standalone",
+  assetPrefix: process.env.NODE_ENV === "production" ? "/_next/" : "",
+  experimental: {
+
+  },
+  trailingSlashes: false,
 };
 
 export default nextConfig;
