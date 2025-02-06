@@ -66,14 +66,17 @@ export default function Land() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          code,
+          code, // This will send the PHP code to the backend for execution
         }),
       });
+  
       const result = await response.json();
+  
       if (!response.ok) {
         throw new Error(result.error || "Error running code");
       }
-      setOutput(result.output);
+  
+      setOutput(result.output); // Display the output from JDoodle
     } catch (error) {
       if (error instanceof Error) {
         setOutput(`Error: ${error.message}`);
@@ -82,6 +85,7 @@ export default function Land() {
       }
     }
   };
+  
 
   const handleProjectClick = (key: string) => {
     setCurrentKey(key);

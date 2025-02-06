@@ -1,21 +1,22 @@
 // pages/api/run.js
 
-import { getSession } from 'next-auth/react';
+import { getToken } from 'next-auth/jwt';
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
-  const session = await getSession({ req });
+  // Use getToken to get the JWT token from the request
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-  if (!session) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
+  if (!token) {
+    // If no token found, return Unauthorized
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   if (req.method === 'POST') {
     const { code } = req.body;
 
     try {
-      // Use an external API to execute PHP code securely
+      // Use the JDoodle API to execute PHP code
       const response = await fetch('https://api.jdoodle.com/v1/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,11 +32,12 @@ export default async function handler(req, res) {
       const data = await response.json();
 
       if (data.error) {
-        res.status(500).json({ error: data.error });
+        return res.status(500).json({ error: data.error });
       } else {
-        res.status(200).json({ output: data.output });
+        return res.status(200).json({ output: data.output });
       }
     } catch (error) {
+      console.error(error);
       res.status(500).json({ error: 'Failed to execute code.' });
     }
   } else {
