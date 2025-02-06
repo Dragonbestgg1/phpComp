@@ -62,6 +62,7 @@ export default NextAuth({
     },
 
     async jwt({ token, user }) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       if (user) {
         token.id = user.id || user.sub;
       }
