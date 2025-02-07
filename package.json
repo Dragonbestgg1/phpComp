@@ -25,7 +25,7 @@
     "express": "^4.21.2",
     "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.13.0",
+    "mongodb": "^5.9.2",
     "next": "15.1.6",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
