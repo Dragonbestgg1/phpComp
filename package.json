@@ -16,6 +16,7 @@
     "@uiw/codemirror-theme-dracula": "^4.23.7",
     "@uiw/react-codemirror": "^4.23.7",
     "@vercel/edge-config": "^1.4.0",
+    "@vercel/speed-insights": "^1.1.0",
     "body-parser": "^1.20.3",
     "codemirror": "^6.0.1",
     "cookie": "^1.0.2",
